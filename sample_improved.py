@@ -5,7 +5,6 @@ import numpy as np
 import cv2
 import io
 
-# Optional DenseCRF (better refinement)
 try:
     import pydensecrf.densecrf as dcrf
     from pydensecrf.utils import unary_from_softmax
@@ -13,10 +12,8 @@ try:
 except Exception:
     CRF_AVAILABLE = False
 
-# Page configuration
 st.set_page_config(page_title="Premium Background Remover", layout="centered")
 
-# ---- Custom CSS for Blue Theme ----
 st.markdown("""
     <style>
         body {
@@ -55,10 +52,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Title
 st.markdown("<h1>🖼️ Premium Background Remover</h1>", unsafe_allow_html=True)
 
-# --- Helper Functions ---
 def pil_to_bgr(pil_img):
     arr = np.array(pil_img.convert("RGB"))
     return cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
@@ -115,7 +110,6 @@ def compose_rgba(bgr_img, alpha_float):
     rgba = np.dstack([rgb, alpha_uint8])
     return Image.fromarray(rgba)
 
-# --- Upload and Controls ---
 uploaded_file = st.file_uploader("Upload an image (PNG/JPG/JPEG)", type=["png", "jpg", "jpeg"])
 st.markdown("### 🎛 Refinement Controls")
 cols = st.columns(3)
@@ -127,7 +121,6 @@ if use_crf and not CRF_AVAILABLE:
 
 st.markdown("---")
 
-# --- Processing ---
 if uploaded_file is None:
     st.info("Upload an image to start background removal.")
 else:
@@ -154,7 +147,6 @@ else:
         prob_smoothed = (prob_smoothed - prob_smoothed.min()) / (prob_smoothed.max() - prob_smoothed.min() + 1e-8)
         final_pil = compose_rgba(bgr, prob_smoothed)
 
-    # Show original and final side by side
     col1, col2 = st.columns(2)
     col1.subheader("Original")
     col1.image(input_pil, use_container_width=True)
@@ -164,3 +156,4 @@ else:
     # Download button
     final_bytes = bytes_to_pngbytes(final_pil)
     st.download_button("📥 Download Final Image", data=final_bytes, file_name="output_refined.png", mime="image/png")
+
